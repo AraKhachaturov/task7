@@ -8,5 +8,8 @@
     "start": "npx nodemon index.js"
   },
   "author": "Ara",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.9.0"
+  }
 }

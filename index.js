@@ -9,7 +9,10 @@ fs.readdir(imputedDirectory, function (err, file) {
     let fullPath = imputedDirectory + "/" + item;
     console.log(item);
     fs.stat(fullPath, (err, fileStat) => {
-      console.log(fileStat.size);
+      let fileSize = fileStat.size;
+      fs.appendFile("sorted_files.txt", `${fullPath}-----${fileSize }\n`,(err)=>{
+          console.log(err);
+      });
     });
   });
 });
