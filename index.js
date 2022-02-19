@@ -1,6 +1,12 @@
 let fs = require('fs');
 let path = require('path');
 
+function bytesConvertor(bytes) {
+    var sizes = ['bytes', 'kb', 'mb', 'gb', 'TB'];
+    if (bytes == 0) return '0 Byte';
+    var n = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, n), 2)  + sizes[n];
+ }
 
 let walk = function(dir, done) {
   let results = [];
@@ -35,9 +41,12 @@ walk(process.argv[2], function(err, results) {
     let resultToSave=results.sort((i1,i2)=>{
         return i2.size -i1.size;
     }).map(item =>{
-            return `${item.path.split(path.sep).join("/")}------------${item.size}`;
+            return `${item.path.split(path.sep).join("/")}------------${bytesConvertor(item.size)}`;
     }).join('\n');
 
+    fs.writeFile("sorted_files.txt",resultToSave, err=>{
+        if (err) throw err;
+    });
     console.log(results);
     
     console.log(resultToSave);
