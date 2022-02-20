@@ -2,40 +2,65 @@ let fs = require('fs');
 let path = require('path');
 
 function bytesConvertor(bytes) {
-    var sizes = ['bytes', 'kb', 'mb', 'gb', 'TB'];
+
+    var sizes = ['bytes', 'kb', 'mb', 'gb', 'tb'];
+
     if (bytes == 0) return '0 Byte';
+
     var n = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+
     return Math.round(bytes / Math.pow(1024, n), 2)  + sizes[n];
  }
 
-let walk = function(dir, done) {
-  let results = [];
-  fs.readdir(dir, function(err, list) {
-    if (err) return done(err);
-    let pending = list.length;
-    if (!pending) return done(null, results);
-    list.forEach(function(file) {
+let sreachFiles = function(direction, callBack) {
+
+  let filesDescription = new Array;
 
 
-      file = path.resolve(dir, file);
-      console.log(file)
-      fs.stat(file, function(err, stat) {
+  fs.readdir(direction, function(err, content) {
+
+
+    if (err) return callBack(err);
+
+
+    let numberOfContent = content.length;
+
+
+    if (!numberOfContent) return callBack(null, results);
+
+    content.forEach(function(fileAbsolutePath) {
+
+
+    fileAbsolutePath = path.resolve(direction, fileAbsolutePath);
+  
+
+
+      fs.stat(fileAbsolutePath, function(err, stat) {
+      
         if (stat && stat.isDirectory()) {
-          walk(file, function(err, res) {
-            results = results.concat(res);
-            if (!--pending) done(null, results);
+
+            sreachFiles(fileAbsolutePath, function(err, res1) {
+                filesDescription = filesDescription.concat(res1);
+            if (!--numberOfContent) callBack(null, filesDescription);
+
           });
         } else {
-          results.push({path:path.relative( process.cwd(),file), size: stat.size});
-          if (!--pending) done(null, results);
+
+            filesDescription.push({path:path.relative( process.cwd(),fileAbsolutePath), size: stat.size});
+          if (!--numberOfContent) callBack(null, filesDescription);
+
         }
       });
     });
+
+
   });
+
+
 };
 
 
-walk(process.argv[2], function(err, results) {
+sreachFiles(process.argv[2], function(err, results) {
   if (err) throw err;
     
     let resultToSave=results.sort((i1,i2)=>{
@@ -47,9 +72,6 @@ walk(process.argv[2], function(err, results) {
     fs.writeFile("sorted_files.txt",resultToSave, err=>{
         if (err) throw err;
     });
-    console.log(results);
-    
-    console.log(resultToSave);
 
 
   });
